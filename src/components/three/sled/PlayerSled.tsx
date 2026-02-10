@@ -32,12 +32,14 @@ export function PlayerSled({ trackId }: PlayerSledProps) {
   useSledPhysics(trackId)
 
   const smoothPos = useRef(new Vector3())
+  const smoothRoll = useRef(0)
 
   useFrame(() => {
     if (!groupRef.current) return
 
     const progress = useGameStore.getState().playerProgress
     const lateralOffset = useGameStore.getState().playerLateralOffset
+    const steeringInput = useGameStore.getState().steeringInput
 
     const { position, tangent } = getTrackPosition(
       trackData,
@@ -53,6 +55,11 @@ export function PlayerSled({ trackId }: PlayerSledProps) {
     // Orient sled along track
     const lookTarget = new Vector3().copy(position).add(tangent)
     groupRef.current.lookAt(lookTarget)
+
+    // Bank/tilt into turns for Mario Kart feel
+    const targetRoll = -steeringInput * 0.2
+    smoothRoll.current += (targetRoll - smoothRoll.current) * 0.15
+    groupRef.current.rotation.z = smoothRoll.current
   })
 
   return (

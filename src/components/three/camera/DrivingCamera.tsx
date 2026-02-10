@@ -1,6 +1,6 @@
 import { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Vector3 } from 'three'
+import { Vector3, PerspectiveCamera } from 'three'
 import { useGameStore } from '../../../stores/useGameStore'
 import { getTrackPoints } from '../../../data/trackPaths'
 import { generateTrackData, getTrackPosition } from '../../../systems/trackGenerator'
@@ -25,10 +25,12 @@ export function DrivingCamera({ trackId }: DrivingCameraProps) {
 
   const smoothCamPos = useRef(new Vector3())
   const smoothLookAt = useRef(new Vector3())
+  const initialized = useRef(false)
 
   useFrame(() => {
     const progress = useGameStore.getState().playerProgress
     const lateralOffset = useGameStore.getState().playerLateralOffset
+    const currentSpeed = useGameStore.getState().currentSpeed
 
     const { position: sledPos, tangent, normal } = getTrackPosition(
       trackData,
@@ -37,24 +39,46 @@ export function DrivingCamera({ trackId }: DrivingCameraProps) {
       width,
     )
 
-    // Chase camera: behind and above the sled
+    // Chase camera: behind and above the sled (Mario Kart style - closer and higher)
     const camTarget = new Vector3()
       .copy(sledPos)
-      .addScaledVector(tangent, -4) // behind
-      .addScaledVector(normal, 2.5) // above
+      .addScaledVector(tangent, -3.5) // behind
+      .addScaledVector(normal, 3.0) // above
 
-    // Look-at point: ahead of the sled
+    // Look-at point: slightly ahead of the sled
     const lookTarget = new Vector3()
       .copy(sledPos)
-      .addScaledVector(tangent, 8)
-      .addScaledVector(normal, 0.5)
+      .addScaledVector(tangent, 6)
+      .addScaledVector(normal, 0.3)
 
-    // Smooth follow
-    smoothCamPos.current.lerp(camTarget, 0.08)
-    smoothLookAt.current.lerp(lookTarget, 0.1)
+    // Initialize camera position immediately on first frame (no lerp from origin)
+    if (!initialized.current) {
+      smoothCamPos.current.copy(camTarget)
+      smoothLookAt.current.copy(lookTarget)
+      initialized.current = true
+    }
+
+    // Responsive smooth follow - faster lerp for tighter tracking
+    const posAlpha = 0.12
+    const lookAlpha = 0.15
+    smoothCamPos.current.lerp(camTarget, posAlpha)
+    smoothLookAt.current.lerp(lookTarget, lookAlpha)
+
+    // Ensure camera is always above the sled
+    const minHeight = sledPos.y + 1.5
+    if (smoothCamPos.current.y < minHeight) {
+      smoothCamPos.current.y = minHeight
+    }
 
     camera.position.copy(smoothCamPos.current)
     camera.lookAt(smoothLookAt.current)
+
+    // Dynamic FOV for speed sensation
+    if (camera instanceof PerspectiveCamera) {
+      const speedFactor = Math.max(0, (currentSpeed - 15) / 30)
+      camera.fov = 60 + speedFactor * 15
+      camera.updateProjectionMatrix()
+    }
   })
 
   return null

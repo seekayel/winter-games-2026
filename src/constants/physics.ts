@@ -23,6 +23,7 @@ export const MIN_SPEED = 5 // m/s minimum (never stop)
 export const SPEED_SLED_FACTOR = 0.05 // per sled speed stat point
 export const ACCEL_SLED_FACTOR = 0.05 // per sled accel stat point
 export const HANDLING_SLED_FACTOR = 0.1 // per sled handling stat point
+export const CURVE_DRIFT_FACTOR = 0.006 // lateral drift on curves (player must counter-steer)
 
 // Race
 export const COUNTDOWN_DURATION = 3 // 3-2-1-GO

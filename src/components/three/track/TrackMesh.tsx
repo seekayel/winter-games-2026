@@ -18,11 +18,8 @@ export function TrackMesh({ trackId }: TrackMeshProps) {
 
   return (
     <mesh geometry={geometry} receiveShadow>
-      <meshStandardMaterial
-        color="#c8e0f0"
-        metalness={0.3}
-        roughness={0.1}
-        envMapIntensity={0.8}
+      <meshToonMaterial
+        color="#88ccff"
       />
     </mesh>
   )

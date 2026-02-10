@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { useGameStore } from '../stores/useGameStore'
 import { getSled } from '../constants/sleds'
 import { getTrackPoints } from '../data/trackPaths'
-import { generateTrackData, getTrackSlope } from '../systems/trackGenerator'
+import { generateTrackData, getTrackSlope, getTrackCurvature } from '../systems/trackGenerator'
 import {
   BASE_GRAVITY_SPEED,
   GRAVITY_SLOPE_FACTOR,
@@ -15,6 +15,7 @@ import {
   MIN_SPEED,
   SPEED_SLED_FACTOR,
   HANDLING_SLED_FACTOR,
+  CURVE_DRIFT_FACTOR,
 } from '../constants/physics'
 import { useKeyboard } from './useKeyboard'
 import { playWallHit, playFinishCross } from '../systems/audio'
@@ -61,13 +62,17 @@ export function useSledPhysics(trackId: string) {
     // Clamp speed
     speedRef.current = Math.max(MIN_SPEED, Math.min(MAX_SPEED, speedRef.current))
 
+    // Curve drift - sled pushes outward on curves, player must counter-steer
+    const curvature = getTrackCurvature(trackData, state.playerProgress)
+    const driftForce = curvature * speedRef.current * CURVE_DRIFT_FACTOR
+
     // Steering
     let steer = 0
     if (keys.current.has('ArrowLeft')) steer -= 1
     if (keys.current.has('ArrowRight')) steer += 1
 
     const handlingFactor = 1 + sled.handling * HANDLING_SLED_FACTOR
-    let lateralOffset = state.playerLateralOffset + steer * STEERING_SENSITIVITY * handlingFactor * dt
+    let lateralOffset = state.playerLateralOffset + steer * STEERING_SENSITIVITY * handlingFactor * dt + driftForce * dt
 
     // Wall collision
     wallHitCooldown.current = Math.max(0, wallHitCooldown.current - dt)

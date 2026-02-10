@@ -220,3 +220,22 @@ export function getTrackSlope(trackData: TrackGeometryData, progress: number): n
   // Slope is how much tangent points downward
   return -tangent.y
 }
+
+// Get signed lateral curvature at a given progress point
+// Positive = track curves left (sled drifts right), Negative = curves right (sled drifts left)
+export function getTrackCurvature(trackData: TrackGeometryData, progress: number): number {
+  const n = trackData.trackPoints.length - 1
+  const clampedProgress = Math.max(0.01, Math.min(0.99, progress))
+  const idx = clampedProgress * n
+  const i = Math.floor(idx)
+
+  const i0 = Math.max(0, i - 3)
+  const i1 = Math.min(n, i + 3)
+
+  // Rate of change of tangent direction
+  const dt = new Vector3().subVectors(trackData.tangents[i1], trackData.tangents[i0])
+
+  // Project onto binormal to get signed lateral curvature
+  const binormal = trackData.binormals[Math.min(i, n)]
+  return dt.dot(binormal) * (n / (i1 - i0))
+}

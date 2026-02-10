@@ -16,30 +16,26 @@ export function TrackWalls({ trackId }: TrackWallsProps) {
     const trackData = generateTrackData(points)
 
     return {
-      leftWall: createWallGeometry(trackData, width, 'left'),
-      rightWall: createWallGeometry(trackData, width, 'right'),
+      leftWall: createWallGeometry(trackData, width, 'left', 0.8),
+      rightWall: createWallGeometry(trackData, width, 'right', 0.8),
     }
   }, [trackId])
 
   return (
     <>
       <mesh geometry={leftWall}>
-        <meshStandardMaterial
-          color="#a0d0ff"
+        <meshToonMaterial
+          color="#ff4466"
           transparent
-          opacity={0.3}
-          metalness={0.5}
-          roughness={0.05}
+          opacity={0.75}
           side={DoubleSide}
         />
       </mesh>
       <mesh geometry={rightWall}>
-        <meshStandardMaterial
-          color="#a0d0ff"
+        <meshToonMaterial
+          color="#4488ff"
           transparent
-          opacity={0.3}
-          metalness={0.5}
-          roughness={0.05}
+          opacity={0.75}
           side={DoubleSide}
         />
       </mesh>

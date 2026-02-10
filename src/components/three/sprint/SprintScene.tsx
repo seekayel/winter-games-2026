@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { Group } from 'three'
 import { useGameStore } from '../../../stores/useGameStore'
 
-// Sprint scene: side-view of runners pushing a sled
+// Sprint scene: side-view of runners pushing a sled - cartoon style
 export function SprintScene() {
   const groupRef = useRef<Group>(null)
   const sprintSpeed = useGameStore((s) => s.sprintSpeed)
@@ -13,7 +13,6 @@ export function SprintScene() {
   useFrame(() => {
     if (!groupRef.current) return
     if (racePhase === 'sprint') {
-      // Bob animation based on speed
       const bob = Math.sin(Date.now() * 0.015 * (1 + sprintSpeed * 3)) * 0.05
       groupRef.current.position.y = bob
     }
@@ -21,36 +20,46 @@ export function SprintScene() {
 
   return (
     <group ref={groupRef} position={[0, 0, 0]}>
-      {/* Starting block */}
-      <mesh position={[0, 0.1, 2]}>
-        <boxGeometry args={[1.5, 0.2, 0.5]} />
-        <meshStandardMaterial color="#666666" />
+      {/* Starting block - cartoon style */}
+      <mesh position={[0, 0.12, 2]}>
+        <boxGeometry args={[1.8, 0.25, 0.5]} />
+        <meshToonMaterial color="#ff6644" />
       </mesh>
 
-      {/* Ice track floor */}
+      {/* Ice track floor - bright cartoon ice */}
       <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[4, 10]} />
-        <meshStandardMaterial color="#d0e8f8" metalness={0.3} roughness={0.1} />
+        <planeGeometry args={[5, 12]} />
+        <meshToonMaterial color="#88ccff" />
       </mesh>
 
-      {/* Sled body */}
+      {/* Track edge stripes */}
+      <mesh position={[-2.3, -0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.3, 12]} />
+        <meshToonMaterial color="#ff4466" />
+      </mesh>
+      <mesh position={[2.3, -0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.3, 12]} />
+        <meshToonMaterial color="#4488ff" />
+      </mesh>
+
+      {/* Cartoon sled body */}
       <group position={[0, 0.25, 0]}>
         <mesh castShadow>
-          <boxGeometry args={[0.5, 0.2, 1.2]} />
-          <meshStandardMaterial color="#4488cc" metalness={0.6} roughness={0.3} />
+          <capsuleGeometry args={[0.25, 0.8, 8, 12]} />
+          <meshToonMaterial color="#4488cc" />
         </mesh>
         {/* Runners */}
         <mesh position={[-0.2, -0.12, 0]}>
-          <boxGeometry args={[0.03, 0.04, 1.3]} />
-          <meshStandardMaterial color="#cccccc" metalness={0.9} roughness={0.1} />
+          <capsuleGeometry args={[0.03, 1.1, 4, 8]} />
+          <meshToonMaterial color="#e0e0e0" />
         </mesh>
         <mesh position={[0.2, -0.12, 0]}>
-          <boxGeometry args={[0.03, 0.04, 1.3]} />
-          <meshStandardMaterial color="#cccccc" metalness={0.9} roughness={0.1} />
+          <capsuleGeometry args={[0.03, 1.1, 4, 8]} />
+          <meshToonMaterial color="#e0e0e0" />
         </mesh>
       </group>
 
-      {/* Runner figures (simplified stick figures) */}
+      {/* Cartoon runner figures */}
       <RunnerFigure position={[-0.3, 0, 0.8]} speed={sprintSpeed} offset={0} />
       <RunnerFigure position={[0.3, 0, 0.8]} speed={sprintSpeed} offset={Math.PI} />
     </group>
@@ -70,7 +79,6 @@ function RunnerFigure({
 
   useFrame(() => {
     if (!groupRef.current) return
-    // Running bob + lean forward
     const phase = Date.now() * 0.01 * (1 + speed * 3) + offset
     groupRef.current.rotation.x = -0.2 - speed * 0.3
     groupRef.current.rotation.z = Math.sin(phase) * 0.05
@@ -78,33 +86,38 @@ function RunnerFigure({
 
   return (
     <group ref={groupRef} position={position}>
-      {/* Head */}
+      {/* Head - bigger for cartoon */}
       <mesh position={[0, 1.5, 0]}>
-        <sphereGeometry args={[0.1, 8, 8]} />
-        <meshStandardMaterial color="#ffcc99" />
+        <sphereGeometry args={[0.14, 10, 10]} />
+        <meshToonMaterial color="#ffcc88" />
       </mesh>
-      {/* Body */}
+      {/* Helmet */}
+      <mesh position={[0, 1.56, 0]}>
+        <sphereGeometry args={[0.15, 10, 10, 0, Math.PI * 2, 0, Math.PI * 0.55]} />
+        <meshToonMaterial color="#2266cc" />
+      </mesh>
+      {/* Body - rounder */}
       <mesh position={[0, 1.1, 0]}>
-        <boxGeometry args={[0.2, 0.5, 0.15]} />
-        <meshStandardMaterial color="#2266aa" />
+        <capsuleGeometry args={[0.1, 0.3, 6, 8]} />
+        <meshToonMaterial color="#2266cc" />
       </mesh>
       {/* Legs */}
       <mesh position={[-0.06, 0.6, 0]}>
-        <boxGeometry args={[0.08, 0.5, 0.1]} />
-        <meshStandardMaterial color="#1a1a2e" />
+        <capsuleGeometry args={[0.05, 0.35, 4, 6]} />
+        <meshToonMaterial color="#224488" />
       </mesh>
       <mesh position={[0.06, 0.6, 0]}>
-        <boxGeometry args={[0.08, 0.5, 0.1]} />
-        <meshStandardMaterial color="#1a1a2e" />
+        <capsuleGeometry args={[0.05, 0.35, 4, 6]} />
+        <meshToonMaterial color="#224488" />
       </mesh>
       {/* Arms */}
       <mesh position={[-0.15, 1.15, 0]} rotation={[0.5, 0, 0]}>
-        <boxGeometry args={[0.06, 0.35, 0.06]} />
-        <meshStandardMaterial color="#2266aa" />
+        <capsuleGeometry args={[0.035, 0.25, 4, 6]} />
+        <meshToonMaterial color="#2266cc" />
       </mesh>
       <mesh position={[0.15, 1.15, 0]} rotation={[-0.5, 0, 0]}>
-        <boxGeometry args={[0.06, 0.35, 0.06]} />
-        <meshStandardMaterial color="#2266aa" />
+        <capsuleGeometry args={[0.035, 0.25, 4, 6]} />
+        <meshToonMaterial color="#2266cc" />
       </mesh>
     </group>
   )

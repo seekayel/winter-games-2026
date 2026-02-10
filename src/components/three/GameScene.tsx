@@ -4,6 +4,7 @@ import { SprintScene } from './sprint/SprintScene'
 import { TrackEnvironment } from './track/TrackEnvironment'
 import { TrackMesh } from './track/TrackMesh'
 import { TrackWalls } from './track/TrackWalls'
+import { TrackDecorations } from './track/TrackDecorations'
 import { FinishLine } from './track/FinishLine'
 import { PlayerSled } from './sled/PlayerSled'
 import { AISled } from './sled/AISled'
@@ -42,6 +43,7 @@ export function GameScene() {
         <>
           <TrackMesh trackId={selectedTrackId} />
           <TrackWalls trackId={selectedTrackId} />
+          <TrackDecorations trackId={selectedTrackId} />
           <FinishLine trackId={selectedTrackId} />
           <PlayerSled trackId={selectedTrackId} />
           {aiRacers.map((racer) => (
